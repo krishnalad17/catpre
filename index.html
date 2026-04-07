@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statements and Conclusions - CIAP CAT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .slide-enter { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen w-screen flex flex-col overflow-hidden selection:bg-blue-500 selection:text-white">
+
+    <!-- Progress Bar -->
+    <div class="w-full h-1.5 bg-slate-800 z-50">
+        <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-300 ease-out" style="width: 0%"></div>
+    </div>
+
+    <!-- Main Slide Area -->
+    <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
+        <div id="slide-container" class="w-full h-full overflow-y-auto hide-scrollbar flex flex-col items-center justify-center p-6 md:p-16 slide-enter relative z-10">
+            <!-- Content injected via JS -->
+        </div>
+        
+        <!-- Abstract Background Decoration -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 opacity-20">
+            <div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-blue-600 blur-[120px]"></div>
+            <div class="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-cyan-600 blur-[120px]"></div>
+        </div>
+    </main>
+
+    <!-- Speaker Notes Toggle Button (Floating) -->
+    <button onclick="toggleNotes()" class="absolute top-6 right-6 z-50 bg-slate-800/80 hover:bg-slate-700 text-slate-300 p-2.5 rounded-full backdrop-blur transition-all border border-slate-600 shadow-lg" title="Toggle Speaker Notes">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></svg>
+    </button>
+
+    <!-- Speaker Notes Drawer -->
+    <div id="notes-drawer" class="absolute bottom-20 left-0 w-full glass-panel border-t transform translate-y-full transition-transform duration-300 z-40 max-h-[40vh] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] hidden">
+        <div class="p-3 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center shrink-0">
+            <h3 class="font-bold text-blue-400 text-sm tracking-wider uppercase flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                Speaker Script
+            </h3>
+            <button onclick="toggleNotes()" class="text-slate-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+        <div class="p-6 overflow-y-auto hide-scrollbar text-slate-200 text-lg md:text-xl leading-relaxed font-serif italic" id="notes-content">
+            <!-- Notes injected via JS -->
+        </div>
+    </div>
+
+    <!-- Footer Controls -->
+    <footer class="h-20 bg-slate-900 border-t border-slate-800 flex items-center justify-between px-4 md:px-8 z-50 shrink-0 relative">
+        <button id="prev-btn" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 border border-slate-700" onclick="prevSlide()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <span class="hidden sm:inline">Prev</span>
+        </button>
+        
+        <div class="flex flex-col items-center">
+            <div id="slide-indicator" class="text-slate-400 font-medium tracking-wide text-sm md:text-base">
+                1 / 11
+            </div>
+            <div class="text-xs text-slate-600 mt-0.5 hidden md:block">Use Arrow Keys to navigate</div>
+        </div>
+        
+        <button id="next-btn" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-blue-900/20" onclick="nextSlide()">
+            <span class="hidden sm:inline">Next</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+    </footer>
+
+    <script>
+        const slidesData = [
+            {
+                type: 'title',
+                title: "Statements & Conclusions",
+                subtitle: "Logical Reasoning Masterclass",
+                tag: "CIAP – Competitive Assessment Training (CAT)",
+                notes: "Hello everyone, today we will tackle one of the most high-scoring yet tricky topics in logical reasoning: Statements and Conclusions."
+            },
+            {
+                type: 'bullets',
+                title: "1. Introduction",
+                items: [
+                    "<b>What is it?</b><br>A test of your ability to read information and deduce valid outcomes <i>without</i> personal bias.",
+                    "<b>Why is it important?</b><br>Expect 3 to 4 questions in major placement tests.",
+                    "<b>Target Companies:</b><br><span class='flex gap-4 mt-3 text-blue-400 font-mono text-sm'><span class='bg-slate-800 px-3 py-1 rounded border border-slate-700'>TCS</span> <span class='bg-slate-800 px-3 py-1 rounded border border-slate-700'>Infosys</span> <span class='bg-slate-800 px-3 py-1 rounded border border-slate-700'>Wipro</span> <span class='bg-slate-800 px-3 py-1 rounded border border-slate-700'>Accenture</span></span>"
+                ],
+                notes: "It is a test of your ability to read a piece of information and deduce logically valid outcomes without letting personal bias interfere. You will encounter 3 to 4 questions from this topic in almost every major placement test, including TCS, Infosys, Wipro, Accenture, as well as banking and government exams. Mastering this ensures quick, easy marks."
+            },
+            {
+                type: 'diagram',
+                title: "2. Core Concept & Rules",
+                content: `
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-8 w-full max-w-4xl mx-auto mt-8">
+                        <div class="glass-panel p-6 rounded-xl flex-1 text-center w-full border-blue-500/30">
+                            <h3 class="text-2xl font-bold text-blue-400 mb-2">The Statement</h3>
+                            <p class="text-slate-300">The <b>Absolute Truth</b>. Treat it as fact, even if it defies reality.</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="text-slate-500 transform rotate-90 md:rotate-0 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <div class="glass-panel p-6 rounded-xl flex-1 text-center w-full border-cyan-500/30 relative overflow-hidden">
+                            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-50"></div>
+                            <h3 class="text-2xl font-bold text-cyan-400 mb-2 relative z-10">Logical Filter</h3>
+                            <p class="text-slate-300 text-sm relative z-10">No Bias • No GK • No Morals</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="text-slate-500 transform rotate-90 md:rotate-0 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <div class="glass-panel p-6 rounded-xl flex-1 text-center w-full border-green-500/30">
+                            <h3 class="text-2xl font-bold text-green-400 mb-2">The Conclusion</h3>
+                            <p class="text-slate-300">A deduction drawn <i>strictly</i> from the statement.</p>
+                        </div>
+                    </div>
+                `,
+                notes: "Let’s define the ground rules. The Statement: This is the premise. In this test, the statement is the absolute truth. Even if it says 'The sun rises in the west,' you must accept it as fact. The Conclusion: This is an opinion, decision, or deduction drawn strictly from the statement. Common Mistakes: Students often fail because they use outside general knowledge, pre-assume things, or apply human morality and ethics. Here, logic overrides common sense."
+            },
+            {
+                type: 'flow',
+                title: "3. Step-by-Step Solving Method",
+                steps: [
+                    { num: "01", title: "Read Carefully", desc: "Treat the statement as a closed universe. Nothing outside of it exists." },
+                    { num: "02", title: "Identify Facts", desc: "Pinpoint exactly what is explicitly stated." },
+                    { num: "03", title: "Check Validity", desc: "Ask: 'Does the statement directly prove this conclusion?'" },
+                    { num: "04", title: "Eliminate", desc: "Cross out extremes, assumptions, and new data instantly." }
+                ],
+                notes: "To solve these efficiently, follow this 4-step framework: Step 1 – Read the statement carefully: Treat it as a closed universe. Nothing outside of it exists. Step 2 – Identify key facts: What is explicitly stated? Step 3 – Check logical validity: Ask yourself, 'Does the statement directly prove this conclusion?' Step 4 – Eliminate: Instantly cross out conclusions that are extreme, make assumptions, or introduce new data."
+            },
+            {
+                type: 'question',
+                title: "Question 1: The 'Advice/Result' Rule",
+                statement: "With the increase in consumption of petroleum products, it is feared petrol will be a rare commodity in the near future.",
+                conclusions: [
+                    "1. Petroleum products should be used efficiently.",
+                    "2. We should switch to solar energy."
+                ],
+                correctHtml: `<div class="p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-300">
+                    <b class="text-green-400">Answer: Only Conclusion 1 follows.</b><br>
+                    <span class="text-sm mt-2 block opacity-90">Conclusion 1 is a direct logical advice based on the statement. Conclusion 2 is invalid because the statement never mentions 'solar energy'. Do not use outside knowledge!</span>
+                </div>`,
+                notes: "Let's apply this to some actual placement-style questions. First, the Advice/Result Rule. Read the statement. Conclusion 1 is a direct logical advice based on the statement. Conclusion 2 is invalid because the statement never mentions 'solar energy'. Do not use outside knowledge! Therefore, Only Conclusion 1 follows."
+            },
+            {
+                type: 'question',
+                title: "Question 2: The 'Morality' Trap",
+                statement: "Many medicines contain fish oil.",
+                conclusions: [
+                    "1. All vegetarians are also pescatarians (fish eaters).",
+                    "2. Some vegetarians consume such medicines to cure their diseases."
+                ],
+                correctHtml: `<div class="p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-300">
+                    <b class="text-green-400">Answer: Only Conclusion 2 follows.</b><br>
+                    <span class="text-sm mt-2 block opacity-90">Conclusion 1 uses the extreme word 'All' and is illogical. Conclusion 2 follows logically because a vegetarian might take a medicine specifically to cure a disease, regardless of moral eating habits. Leave ethics at the door!</span>
+                </div>`,
+                notes: "Next, the Morality Trap. Read the statement. Conclusion 1 uses the extreme word 'All' and is illogical. Conclusion 2 follows logically because a vegetarian might take a medicine specifically to cure a disease, regardless of moral eating habits. Leave ethics at the door! Only Conclusion 2 follows."
+            },
+            {
+                type: 'question',
+                title: "Question 3: The 'Assumption' Trap",
+                statement: "India is a democratic country.",
+                conclusions: [
+                    "1. No other country in the world is democratic.",
+                    "2. There are many other democratic countries in the world."
+                ],
+                correctHtml: `<div class="p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-300">
+                    <b class="text-green-400">Answer: Neither 1 nor 2 follows.</b><br>
+                    <span class="text-sm mt-2 block opacity-90">The statement only talks about India. Concluding anything about the rest of the world (whether 'no other' or 'many other') is a blind assumption.</span>
+                </div>`,
+                notes: "Finally, the Assumption Trap. Read the statement. The statement only talks about India. Concluding anything about the rest of the world is a blind assumption. Neither 1 nor 2 follows."
+            },
+            {
+                type: 'split',
+                title: "6. Shortcuts, Tips, and Tricks",
+                leftTitle: "🚩 Red Flags (Usually Invalid)",
+                leftItems: ["Words: <b>All</b>", "Words: <b>None, Never</b>", "Words: <b>Always, Only, Definitely</b>", "Assumptions outside the statement"],
+                rightTitle: "✅ Green Flags (Often Valid)",
+                rightItems: ["Words: <b>Some</b>", "Words: <b>May, Might</b>", "Direct advice related to a stated problem", "Direct result of a stated problem"],
+                notes: "Here are the golden cheat codes for quick accuracy: The Golden Rule: Never assume anything outside the statement. Beware of Extreme Words: Words like All, None, Always, Only, Definitely, Never usually make a conclusion invalid. Look for Soft Words: Words like Some, May, Might are often true. The Advice/Result Trick: If a conclusion offers advice or a result that is directly tied to a problem mentioned in the statement, it generally follows."
+            },
+            {
+                type: 'content',
+                title: "7. Time Management Strategy",
+                body: `
+                    <div class="flex flex-col items-center text-center max-w-3xl mx-auto space-y-8 mt-4">
+                        <div class="w-32 h-32 rounded-full border-4 border-blue-500 flex items-center justify-center relative mb-4">
+                            <span class="text-4xl font-bold text-white">30s</span>
+                            <div class="absolute w-full h-full rounded-full border-t-4 border-cyan-400 animate-[spin_3s_linear_infinite]"></div>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-slate-200">Target: 30–40 seconds per question</h3>
+                        <ul class="text-left text-xl text-slate-300 space-y-4 w-full glass-panel p-8 rounded-xl">
+                            <li class="flex items-start gap-3"><svg class="text-blue-400 mt-1 shrink-0" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg> <span>Don't overthink. <b>Read the conclusion first</b> to know what you are looking for, then read the statement.</span></li>
+                            <li class="flex items-start gap-3"><svg class="text-blue-400 mt-1 shrink-0" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg> <span>Use the <b>Elimination Method</b> instantly.</span></li>
+                            <li class="flex items-start gap-3"><svg class="text-blue-400 mt-1 shrink-0" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg> <span>Cross out extreme words or outside topics immediately. Trust your first logical instinct.</span></li>
+                        </ul>
+                    </div>
+                `,
+                notes: "In an aptitude test, you have limited time. Your goal is 30 to 40 seconds per question. Strategy: Don't overthink. Read the conclusion first to know what you are looking for, then read the statement. Use the Elimination Method: The moment you see an extreme word or an outside topic, cross it out immediately. Move on. Trust your first logical instinct."
+            },
+            {
+                type: 'bullets',
+                title: "8. Summary & Takeaways",
+                items: [
+                    "Treat the statement as your <b>absolute truth</b>.",
+                    "<b>Filter out</b> your own biases, general knowledge, and ethics.",
+                    "Be <b>ruthless</b> in eliminating conclusions with extreme words.",
+                    "<span class='text-blue-400 mt-4 block italic'>Master these, and you will secure 3-4 marks effortlessly in your upcoming placement drives.</span>"
+                ],
+                notes: "To wrap up: 1. Treat the statement as your absolute truth. 2. Filter out your own biases, general knowledge, and ethics. 3. Be ruthless in eliminating conclusions with extreme words. Master these, and you will secure 3-4 marks effortlessly in your upcoming placement drives."
+            },
+            {
+                type: 'content',
+                title: "Q & A",
+                body: `
+                    <div class="max-w-4xl w-full mx-auto space-y-6 text-left mt-8">
+                        <div class="glass-panel p-5 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-lg text-white mb-1">Q: What if a statement is factually incorrect (e.g., 'The Earth is flat')?</h4>
+                            <p class="text-slate-300">The statement is the absolute truth for that question. We assume the Earth is flat and draw conclusions only based on that. GK does not apply.</p>
+                        </div>
+                        <div class="glass-panel p-5 rounded-lg border-l-4 border-cyan-500">
+                            <h4 class="font-bold text-lg text-white mb-1">Q: How do we handle 'Either/Or' options?</h4>
+                            <p class="text-slate-300">Applies when two conclusions cover mutually exclusive possibilities of the exact same subject. (e.g., 1. Ram will pass. 2. Ram will fail.) Since only one can happen, it's 'Either 1 or 2'.</p>
+                        </div>
+                        <div class="glass-panel p-5 rounded-lg border-l-4 border-purple-500">
+                            <h4 class="font-bold text-lg text-white mb-1">Q: Why do students fail despite knowing rules?</h4>
+                            <p class="text-slate-300">Human empathy and morality. If a company fires 100 people, students assume 'The company is bad'. It's not stated. Emotion overrides logic.</p>
+                        </div>
+                    </div>
+                `,
+                notes: "Be prepared for evaluator questions! Use this slide to review the most common follow-up questions regarding factual inaccuracies, 'Either/Or' conditions, and the underlying reasons why students fail this topic."
+            }
+        ];
+
+        let currentIndex = 0;
+        let notesVisible = false;
+        
+        const container = document.getElementById('slide-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const indicator = document.getElementById('slide-indicator');
+        const progressBar = document.getElementById('progress-bar');
+        const notesDrawer = document.getElementById('notes-drawer');
+        const notesContent = document.getElementById('notes-content');
+
+        function toggleNotes() {
+            notesVisible = !notesVisible;
+            if (notesVisible) {
+                notesDrawer.classList.remove('hidden');
+                setTimeout(() => notesDrawer.classList.remove('translate-y-full'), 10);
+            } else {
+                notesDrawer.classList.add('translate-y-full');
+                setTimeout(() => notesDrawer.classList.add('hidden'), 300);
+            }
+        }
+
+        function renderSlide() {
+            container.classList.remove('slide-enter');
+            void container.offsetWidth; // trigger reflow
+            
+            const slide = slidesData[currentIndex];
+            let html = '';
+            
+            if (slide.type === 'title') {
+                html = `
+                    <div class="text-center max-w-4xl relative z-10">
+                        <div class="inline-block px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm font-semibold tracking-wide mb-6">
+                            ${slide.tag}
+                        </div>
+                        <h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 mb-6 leading-tight">
+                            ${slide.title}
+                        </h1>
+                        <h2 class="text-2xl md:text-3xl font-light text-cyan-400">${slide.subtitle}</h2>
+                    </div>
+                `;
+            } 
+            else if (slide.type === 'bullets') {
+                const listItems = slide.items.map(item => `<li class="flex items-start gap-4"><div class="mt-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div><span class="text-xl md:text-2xl text-slate-200 leading-relaxed">${item}</span></li>`).join('');
+                html = `
+                    <div class="w-full max-w-5xl relative z-10">
+                        <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 border-b border-slate-800 pb-4">${slide.title}</h2>
+                        <ul class="space-y-8">${listItems}</ul>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'flow') {
+                const stepsHtml = slide.steps.map((step, i) => `
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden group hover:border-blue-500/50 transition-colors">
+                        <div class="absolute -right-4 -top-6 text-8xl font-black text-slate-800/50 group-hover:text-blue-900/30 transition-colors pointer-events-none">${step.num}</div>
+                        <h3 class="text-2xl font-bold text-white mb-3 relative z-10">Step ${i+1}: ${step.title}</h3>
+                        <p class="text-slate-300 text-lg relative z-10">${step.desc}</p>
+                    </div>
+                `).join('');
+                html = `
+                    <div class="w-full max-w-5xl relative z-10">
+                        <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 border-b border-slate-800 pb-4">${slide.title}</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">${stepsHtml}</div>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'split') {
+                const leftHtml = slide.leftItems.map(item => `<li class="flex items-center gap-3"><svg class="text-red-400 shrink-0" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg><span class="text-lg">${item}</span></li>`).join('');
+                const rightHtml = slide.rightItems.map(item => `<li class="flex items-center gap-3"><svg class="text-green-400 shrink-0" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"/></svg><span class="text-lg">${item}</span></li>`).join('');
+                
+                html = `
+                    <div class="w-full max-w-5xl relative z-10">
+                        <h2 class="text-4xl md:text-5xl font-bold text-white mb-12 border-b border-slate-800 pb-4">${slide.title}</h2>
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <div class="flex-1 glass-panel p-8 rounded-2xl border-t-4 border-t-red-500">
+                                <h3 class="text-2xl font-bold text-red-400 mb-6">${slide.leftTitle}</h3>
+                                <ul class="space-y-4 text-slate-200">${leftHtml}</ul>
+                            </div>
+                            <div class="flex-1 glass-panel p-8 rounded-2xl border-t-4 border-t-green-500">
+                                <h3 class="text-2xl font-bold text-green-400 mb-6">${slide.rightTitle}</h3>
+                                <ul class="space-y-4 text-slate-200">${rightHtml}</ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'question') {
+                const concs = slide.conclusions.map(c => `<div class="bg-slate-800/50 p-3 rounded text-lg border border-slate-700/50">${c}</div>`).join('');
+                html = `
+                    <div class="w-full max-w-4xl relative z-10 text-left">
+                        <h2 class="text-3xl md:text-4xl font-bold text-blue-400 mb-8 flex items-center gap-3">
+                            <svg class="text-blue-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                            ${slide.title}
+                        </h2>
+                        
+                        <div class="glass-panel p-6 rounded-xl mb-6 border-l-4 border-l-white">
+                            <p class="text-sm text-slate-400 uppercase tracking-wider font-bold mb-2">Statement</p>
+                            <p class="text-xl md:text-2xl text-white font-medium leading-relaxed">"${slide.statement}"</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <p class="text-sm text-slate-400 uppercase tracking-wider font-bold mb-3 pl-1">Conclusions</p>
+                            <div class="space-y-3">${concs}</div>
+                        </div>
+                        
+                        <div id="solution-box-${currentIndex}" class="hidden mt-6 transition-all">
+                            ${slide.correctHtml}
+                        </div>
+                        
+                        <button onclick="document.getElementById('solution-box-${currentIndex}').classList.remove('hidden'); this.classList.add('hidden');" class="mt-4 px-6 py-2.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/50 rounded-lg font-medium transition-all w-full flex justify-center items-center gap-2">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Reveal Solution
+                        </button>
+                    </div>
+                `;
+            }
+            else if (slide.type === 'diagram' || slide.type === 'content') {
+                 html = `
+                    <div class="w-full max-w-5xl relative z-10 text-left md:text-center flex flex-col items-center">
+                        <h2 class="text-4xl md:text-5xl font-bold text-white mb-8 w-full text-left md:text-center border-b border-slate-800 pb-4">${slide.title}</h2>
+                        ${slide.content || slide.body}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            container.classList.add('slide-enter');
+
+            // Update Controls
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === slidesData.length - 1;
+            
+            indicator.textContent = `${currentIndex + 1} / ${slidesData.length}`;
+            progressBar.style.width = `${(currentIndex / (slidesData.length - 1)) * 100}%`;
+            
+            // Update Speaker Notes
+            notesContent.innerHTML = slide.notes ? `"${slide.notes}"` : "<span class='opacity-50'>No script provided for this slide.</span>";
+        }
+
+        function nextSlide() {
+            if (currentIndex < slidesData.length - 1) {
+                currentIndex++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderSlide();
+            }
+        }
+
+        // Keyboard setup
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 's') { // 's' for speaker notes
+                 e.preventDefault();
+                 toggleNotes();
+            }
+        });
+
+        // Touch Swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX - 50) nextSlide();
+            if (touchEndX > touchStartX + 50) prevSlide();
+        });
+
+        // Initialize
+        renderSlide();
+    </script>
+</body>
+</html>
